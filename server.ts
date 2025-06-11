@@ -424,7 +424,7 @@ restoreOverwrittenFilesWithOriginals().then(() => {
   app.get('/api/PrivacyRequests', security.denyAll())
   app.use('/api/PrivacyRequests/:id', security.denyAll())
 
-  app.post('/api/Addresss', security.appendUserId())
+  app.post('/api/Addresss', security.appendUserId(), address.createAddress())
   app.get('/api/Addresss', security.appendUserId(), address.getAddress())
   app.put('/api/Addresss/:id', security.appendUserId())
   app.delete('/api/Addresss/:id', security.appendUserId(), address.delAddressById())

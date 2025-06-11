@@ -5,6 +5,7 @@
 
 import { type Request, type Response, type NextFunction } from 'express'
 import { CardModel } from '../models/card'
+import { security } from '../lib/insecurity'
 
 interface displayCard {
   UserId: number
@@ -18,7 +19,11 @@ interface displayCard {
 module.exports.getPaymentMethods = function getPaymentMethods () {
   return async (req: Request, res: Response, next: NextFunction) => {
     const displayableCards: displayCard[] = []
-    const cards = await CardModel.findAll({ where: { UserId: req.body.UserId } })
+    const userId = security.authenticatedUserId(req)
+    if (!userId) {
+      return res.status(401).json({ status: 'error', data: 'Unauthorized access.' })
+    }
+    const cards = await CardModel.findAll({ where: { UserId: userId } })
     cards.forEach(card => {
       const displayableCard: displayCard = {
         UserId: card.UserId,
@@ -38,40 +43,40 @@ module.exports.getPaymentMethods = function getPaymentMethods () {
 
 module.exports.getPaymentMethodById = function getPaymentMethodById () {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const card = await CardModel.findOne({ where: { id: req.params.id, UserId: req.body.UserId } })
-    const displayableCard: displayCard = {
-      UserId: 0,
-      id: 0,
-      fullName: '',
-      cardNum: '',
-      expMonth: 0,
-      expYear: 0
+    const userId = security.authenticatedUserId(req)
+    if (!userId) {
+      return res.status(401).json({ status: 'error', data: 'Unauthorized access.' })
     }
-    if (card != null) {
-      displayableCard.UserId = card.UserId
-      displayableCard.id = card.id
-      displayableCard.fullName = card.fullName
-      displayableCard.expMonth = card.expMonth
-      displayableCard.expYear = card.expYear
-
+    const card = await CardModel.findOne({ where: { id: req.params.id, UserId: userId } })
+    if (card) {
+      const displayableCard: displayCard = {
+        UserId: card.UserId,
+        id: card.id,
+        fullName: card.fullName,
+        cardNum: '',
+        expMonth: card.expMonth,
+        expYear: card.expYear
+      }
       const cardNumber = String(card.cardNum)
       displayableCard.cardNum = '*'.repeat(12) + cardNumber.substring(cardNumber.length - 4)
-    }
-    if ((card != null) && displayableCard) {
       res.status(200).json({ status: 'success', data: displayableCard })
     } else {
-      res.status(400).json({ status: 'error', data: 'Malicious activity detected' })
+      res.status(404).json({ status: 'error', data: 'Card not found or unauthorized access.' })
     }
   }
 }
 
 module.exports.delPaymentMethodById = function delPaymentMethodById () {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const card = await CardModel.destroy({ where: { id: req.params.id, UserId: req.body.UserId } })
+    const userId = security.authenticatedUserId(req)
+    if (!userId) {
+      return res.status(401).json({ status: 'error', data: 'Unauthorized access.' })
+    }
+    const card = await CardModel.destroy({ where: { id: req.params.id, UserId: userId } })
     if (card) {
       res.status(200).json({ status: 'success', data: 'Card deleted successfully.' })
     } else {
-      res.status(400).json({ status: 'error', data: 'Malicious activity detected.' })
+      res.status(404).json({ status: 'error', data: 'Card not found or unauthorized access.' })
     }
   }
 }

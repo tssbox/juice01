@@ -17,7 +17,7 @@ async function retrieveUserList (req: Request, res: Response, next: NextFunction
         const userToken = security.authenticatedUsers.tokenOf(user)
         let lastLoginTime: number | null = null
         if (userToken) {
-          const parsedToken = decode(userToken, { json: true })
+          const parsedToken = security.verify(userToken) // Use verify instead of decode
           lastLoginTime = parsedToken ? Math.floor(new Date(parsedToken?.iat ?? 0 * 1000).getTime()) : null
         }
 

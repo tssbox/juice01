@@ -34,3 +34,28 @@ module.exports.delAddressById = function delAddressById () {
     }
   }
 }
+
+module.exports.createAddress = function createAddress () {
+  return async (req: Request, res: Response) => {
+    try {
+      const { UserId, fullName, mobileNum, zipCode, streetAddress, city, state, country } = req.body;
+      // Ensure the UserId in the request matches the authenticated user's ID
+      if (req.user.id !== UserId) {
+        return res.status(403).json({ status: 'error', message: 'Unauthorized access.' });
+      }
+      const newAddress = await AddressModel.create({
+        UserId,
+        fullName,
+        mobileNum,
+        zipCode,
+        streetAddress,
+        city,
+        state,
+        country
+      });
+      res.status(201).json({ status: 'success', data: newAddress });
+    } catch (error) {
+      res.status(500).json({ status: 'error', message: 'Failed to create address.' });
+    }
+  }
+}

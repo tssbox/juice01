@@ -19,7 +19,7 @@ module.exports.getAddressById = function getAddressById () {
     if (address != null) {
       res.status(200).json({ status: 'success', data: address })
     } else {
-      res.status(400).json({ status: 'error', data: 'Malicious activity detected.' })
+      res.status(404).json({ status: 'error', data: 'Address not found or you do not have access.' })
     }
   }
 }
@@ -30,7 +30,7 @@ module.exports.delAddressById = function delAddressById () {
     if (address) {
       res.status(200).json({ status: 'success', data: 'Address deleted successfully.' })
     } else {
-      res.status(400).json({ status: 'error', data: 'Malicious activity detected.' })
+      res.status(404).json({ status: 'error', data: 'Address not found or you do not have access.' })
     }
   }
 }

@@ -8,14 +8,14 @@ import { AddressModel } from '../models/address'
 
 module.exports.getAddress = function getAddress () {
   return async (req: Request, res: Response) => {
-    const addresses = await AddressModel.findAll({ where: { UserId: req.body.UserId } })
+    const addresses = await AddressModel.findAll({ where: { UserId: req.user.id } })
     res.status(200).json({ status: 'success', data: addresses })
   }
 }
 
 module.exports.getAddressById = function getAddressById () {
   return async (req: Request, res: Response) => {
-    const address = await AddressModel.findOne({ where: { id: req.params.id, UserId: req.body.UserId } })
+    const address = await AddressModel.findOne({ where: { id: req.params.id, UserId: req.user.id } })
     if (address != null) {
       res.status(200).json({ status: 'success', data: address })
     } else {
@@ -26,7 +26,7 @@ module.exports.getAddressById = function getAddressById () {
 
 module.exports.delAddressById = function delAddressById () {
   return async (req: Request, res: Response) => {
-    const address = await AddressModel.destroy({ where: { id: req.params.id, UserId: req.body.UserId } })
+    const address = await AddressModel.destroy({ where: { id: req.params.id, UserId: req.user.id } })
     if (address) {
       res.status(200).json({ status: 'success', data: 'Address deleted successfully.' })
     } else {
@@ -39,7 +39,7 @@ module.exports.createAddress = function createAddress () {
   return async (req: Request, res: Response) => {
     try {
       const { fullName, mobileNum, zipCode, streetAddress, city, state, country } = req.body;
-      const UserId = req.body.UserId || req.user.id; // Ensure UserId is taken from authenticated user
+      const UserId = req.user.id; // Ensure UserId is taken from authenticated user
       const newAddress = await AddressModel.create({
         UserId,
         fullName,

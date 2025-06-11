@@ -55,7 +55,13 @@ export const isAuthorized = () => expressJwt(({ secret: publicKey, algorithms: [
 export const denyAll = () => expressJwt({ secret: '' + Math.random() } as any)
 export const authorize = (user = {}) => jwt.sign(user, privateKey, { expiresIn: '6h', algorithm: 'RS256' })
 export const verify = (token: string) => token ? jwt.verify(token, publicKey, { algorithms: ['RS256'] }) : false
-export const decode = (token: string) => { return jws.decode(token)?.payload }
+export const decode = (token: string) => {
+  const decoded = jws.decode(token)
+  if (decoded && decoded.header.alg !== 'none') {
+    return decoded.payload
+  }
+  throw new Error('Invalid token algorithm')
+}
 
 export const sanitizeHtml = (html: string) => sanitizeHtmlLib(html)
 export const sanitizeLegacy = (input = '') => input.replace(/<(?:\w+)\W+?[\w]/gi, '')

@@ -69,7 +69,7 @@ module.exports.getPaymentMethodById = function getPaymentMethodById () {
     if ((card != null) && displayableCard) {
       res.status(200).json({ status: 'success', data: displayableCard })
     } else {
-      res.status(400).json({ status: 'error', data: 'Malicious activity detected' })
+      res.status(404).json({ status: 'error', data: 'Card not found' })
     }
   }
 }
@@ -84,7 +84,7 @@ module.exports.delPaymentMethodById = function delPaymentMethodById () {
     if (card) {
       res.status(200).json({ status: 'success', data: 'Card deleted successfully.' })
     } else {
-      res.status(400).json({ status: 'error', data: 'Malicious activity detected.' })
+      res.status(404).json({ status: 'error', data: 'Card not found.' })
     }
   }
 }

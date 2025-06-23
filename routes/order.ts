@@ -144,6 +144,7 @@ module.exports = function placeOrder () {
                 })
               } else {
                 next(new Error('Insufficient wallet balance.'))
+                return
               }
             }
             WalletModel.increment({ balance: totalPoints }, { where: { UserId: req.body.UserId } }).catch((error: unknown) => {

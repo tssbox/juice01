@@ -14,6 +14,12 @@ const safeEval = require('notevil')
 
 module.exports = function b2bOrder () {
   return ({ body }: Request, res: Response, next: NextFunction) => {
+    // Verify JWT token before processing the order
+    const token = req.headers['authorization']?.split(' ')[1];
+    if (!token || !security.verifyToken(token)) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
     if (utils.isChallengeEnabled(challenges.rceChallenge) || utils.isChallengeEnabled(challenges.rceOccupyChallenge)) {
       const orderLinesData = body.orderLinesData || ''
       try {

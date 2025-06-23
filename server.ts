@@ -28,6 +28,7 @@ import colors from 'colors/safe'
 import * as utils from './lib/utils'
 import * as Prometheus from 'prom-client'
 import datacreator from './data/datacreator'
+import { AsyncLocalStorage } from 'node:async_hooks'
 
 import validatePreconditions from './lib/startup/validatePreconditions'
 import cleanupFtpFolder from './lib/startup/cleanupFtpFolder'
@@ -167,6 +168,22 @@ restoreOverwrittenFilesWithOriginals().then(() => {
   app.locals.captchaBypassReqTimes = []
   app.locals.abused_ssti_bug = false
   app.locals.abused_ssrf_bug = false
+
+  /* Unhandled rejections handling with AsyncLocalStorage */
+  const als = new AsyncLocalStorage()
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    als.run({ res }, () => { next() })
+  })
+  process.on('unhandledRejection', (reason) => {
+    console.error('[unhandledRejection]', reason)
+
+    const store = als.getStore() as { res?: Response } | undefined
+    const res = store?.res
+
+    if (res && !res.headersSent && !res.writableEnded) {
+      res.status(500).json({ error: 'Wrong Params' })
+    }
+  })
 
   /* Compression for all requests */
   app.use(compression())

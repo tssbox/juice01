@@ -33,8 +33,20 @@ jobs:
 
       - name: Start application
         run: |
-          npm start &
-          until nc -zv 127.0.0.1 3000; do sleep 1; done
+          # Launch a subshell that restarts on any crash
+          (
+            while true; do
+              npm start
+              echo "[app] crashed with exit code $? – restarting…" >&2
+              sleep 1
+            done
+          ) &
+
+          # Wait for the app to become reachable on port 3000
+          until nc -zv 127.0.0.1 3000; do
+            echo "Waiting for app to be available…"
+            sleep 1
+          done
 
       - name: Set up Node.js 22.x
         uses: actions/setup-node@v4

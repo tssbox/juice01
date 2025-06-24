@@ -15,7 +15,11 @@ module.exports.getAddress = function getAddress () {
 
 module.exports.getAddressById = function getAddressById () {
   return async (req: Request, res: Response) => {
-    const address = await AddressModel.findOne({ where: { id: req.params.id, UserId: req.body.UserId } })
+    const addressId = parseInt(req.params.id, 10);
+    if (isNaN(addressId)) {
+      return res.status(400).json({ status: 'error', data: 'Invalid address ID.' });
+    }
+    const address = await AddressModel.findOne({ where: { id: addressId, UserId: req.body.UserId } })
     if (address != null) {
       res.status(200).json({ status: 'success', data: address })
     } else {
@@ -26,7 +30,11 @@ module.exports.getAddressById = function getAddressById () {
 
 module.exports.delAddressById = function delAddressById () {
   return async (req: Request, res: Response) => {
-    const address = await AddressModel.destroy({ where: { id: req.params.id, UserId: req.body.UserId } })
+    const addressId = parseInt(req.params.id, 10);
+    if (isNaN(addressId)) {
+      return res.status(400).json({ status: 'error', data: 'Invalid address ID.' });
+    }
+    const address = await AddressModel.destroy({ where: { id: addressId, UserId: req.body.UserId } })
     if (address) {
       res.status(200).json({ status: 'success', data: 'Address deleted successfully.' })
     } else {

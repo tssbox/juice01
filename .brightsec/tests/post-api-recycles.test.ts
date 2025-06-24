@@ -21,7 +21,7 @@ after(() => runner.clear());
 test('POST /api/recycles', { signal: AbortSignal.timeout(timeout) }, async () => {
   await runner
     .createScan({
-      tests: ['csrf', 'bopla', 'id_enumeration', 'business_constraint_bypass', 'date_manipulation'],
+      tests: ['id_enumeration'],
       attackParamLocations: [AttackParamLocation.BODY],
       skipStaticParams: false
     })

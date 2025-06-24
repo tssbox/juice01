@@ -18,7 +18,11 @@ interface displayCard {
 module.exports.getPaymentMethods = function getPaymentMethods () {
   return async (req: Request, res: Response, next: NextFunction) => {
     const displayableCards: displayCard[] = []
-    const cards = await CardModel.findAll({ where: { UserId: req.body.UserId } })
+    const userId = req.body.UserId
+    if (!userId) {
+      return res.status(400).json({ status: 'error', data: 'User ID is required' })
+    }
+    const cards = await CardModel.findAll({ where: { UserId: userId } })
     cards.forEach(card => {
       const displayableCard: displayCard = {
         UserId: card.UserId,
@@ -38,7 +42,11 @@ module.exports.getPaymentMethods = function getPaymentMethods () {
 
 module.exports.getPaymentMethodById = function getPaymentMethodById () {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const card = await CardModel.findOne({ where: { id: req.params.id, UserId: req.body.UserId } })
+    const userId = req.body.UserId
+    if (!userId) {
+      return res.status(400).json({ status: 'error', data: 'User ID is required' })
+    }
+    const card = await CardModel.findOne({ where: { id: req.params.id, UserId: userId } })
     const displayableCard: displayCard = {
       UserId: 0,
       id: 0,
@@ -67,7 +75,11 @@ module.exports.getPaymentMethodById = function getPaymentMethodById () {
 
 module.exports.delPaymentMethodById = function delPaymentMethodById () {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const card = await CardModel.destroy({ where: { id: req.params.id, UserId: req.body.UserId } })
+    const userId = req.body.UserId
+    if (!userId) {
+      return res.status(400).json({ status: 'error', data: 'User ID is required' })
+    }
+    const card = await CardModel.destroy({ where: { id: req.params.id, UserId: userId } })
     if (card) {
       res.status(200).json({ status: 'success', data: 'Card deleted successfully.' })
     } else {

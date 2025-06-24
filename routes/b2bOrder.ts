@@ -32,7 +32,13 @@ module.exports = function b2bOrder () {
         }
       }
     } else {
-      res.json({ cid: body.cid, orderNo: uniqueOrderNumber(), paymentDue: dateTwoWeeksFromNow() })
+      try {
+        const orderLinesData = JSON.parse(body.orderLinesData)
+        // Process orderLinesData safely here
+        res.json({ cid: body.cid, orderNo: uniqueOrderNumber(), paymentDue: dateTwoWeeksFromNow() })
+      } catch (err) {
+        res.status(400).json({ error: 'Invalid orderLinesData format' })
+      }
     }
   }
 

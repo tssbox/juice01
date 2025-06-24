@@ -8,6 +8,9 @@ import { AddressModel } from '../models/address'
 
 module.exports.getAddress = function getAddress () {
   return async (req: Request, res: Response) => {
+    if (!req.user || req.user.id !== req.body.UserId) {
+      return res.status(403).json({ status: 'error', data: 'Unauthorized access.' })
+    }
     const addresses = await AddressModel.findAll({ where: { UserId: req.body.UserId } })
     res.status(200).json({ status: 'success', data: addresses })
   }
@@ -15,6 +18,9 @@ module.exports.getAddress = function getAddress () {
 
 module.exports.getAddressById = function getAddressById () {
   return async (req: Request, res: Response) => {
+    if (!req.user || req.user.id !== req.body.UserId) {
+      return res.status(403).json({ status: 'error', data: 'Unauthorized access.' })
+    }
     const address = await AddressModel.findOne({ where: { id: req.params.id, UserId: req.body.UserId } })
     if (address != null) {
       res.status(200).json({ status: 'success', data: address })
@@ -26,6 +32,9 @@ module.exports.getAddressById = function getAddressById () {
 
 module.exports.delAddressById = function delAddressById () {
   return async (req: Request, res: Response) => {
+    if (!req.user || req.user.id !== req.body.UserId) {
+      return res.status(403).json({ status: 'error', data: 'Unauthorized access.' })
+    }
     const address = await AddressModel.destroy({ where: { id: req.params.id, UserId: req.body.UserId } })
     if (address) {
       res.status(200).json({ status: 'success', data: 'Address deleted successfully.' })

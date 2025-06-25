@@ -32,7 +32,9 @@ module.exports = function b2bOrder () {
         }
       }
     } else {
-      res.json({ cid: body.cid, orderNo: uniqueOrderNumber(), paymentDue: dateTwoWeeksFromNow() })
+      // Sanitize input to prevent SQL Injection
+      const sanitizedCid = security.sanitizeInput(body.cid)
+      res.json({ cid: sanitizedCid, orderNo: uniqueOrderNumber(), paymentDue: dateTwoWeeksFromNow() })
     }
   }
 

@@ -26,14 +26,13 @@ module.exports = function productReviews () {
     const sanitizedReviewId = reviewId.replace(/[^a-zA-Z0-9]/g, '');
     const sanitizedMessage = message.replace(/[<>$]/g, '');
 
-    db.reviewsCollection.update( // vuln-code-snippet neutral-line forgedReviewChallenge
-      { _id: sanitizedReviewId }, // vuln-code-snippet vuln-line noSqlReviewsChallenge forgedReviewChallenge
-      { $set: { message: sanitizedMessage } },
-      { multi: true } // vuln-code-snippet vuln-line noSqlReviewsChallenge
+    db.reviewsCollection.updateOne( // Changed from update to updateOne for more precise control
+      { _id: sanitizedReviewId },
+      { $set: { message: sanitizedMessage } }
     ).then(
-      (result: { modified: number, original: Array<{ author: any }> }) => {
-        challengeUtils.solveIf(challenges.noSqlReviewsChallenge, () => { return result.modified > 1 }) // vuln-code-snippet hide-line
-        challengeUtils.solveIf(challenges.forgedReviewChallenge, () => { return user?.data && result.original[0] && result.original[0].author !== user.data.email && result.modified === 1 }) // vuln-code-snippet hide-line
+      (result: { modifiedCount: number, matchedCount: number }) => { // Adjusted to use updateOne result fields
+        challengeUtils.solveIf(challenges.noSqlReviewsChallenge, () => { return result.modifiedCount > 1 }) // vuln-code-snippet hide-line
+        challengeUtils.solveIf(challenges.forgedReviewChallenge, () => { return user?.data && result.matchedCount > 0 && result.modifiedCount === 1 }) // vuln-code-snippet hide-line
         res.json(result)
       }, (err: unknown) => {
         res.status(500).json(err)

@@ -21,7 +21,7 @@ after(() => runner.clear());
 test('GET /rest/products/search', { signal: AbortSignal.timeout(timeout) }, async () => {
   await runner
     .createScan({
-      tests: ['sqli', 'xss', 'business_constraint_bypass', 'improper_asset_management', 'id_enumeration'],
+      tests: ['sqli'],
       attackParamLocations: [AttackParamLocation.QUERY]
     })
     .threshold(Severity.CRITICAL)

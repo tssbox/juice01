@@ -76,3 +76,25 @@ module.exports.updateAddressById = function updateAddressById () {
     }
   }
 }
+
+module.exports.createAddress = function createAddress () {
+  return async (req: Request, res: Response) => {
+    const userId = req.user.id; // Use authenticated user's ID
+    const { fullName, mobileNum, zipCode, streetAddress, city, state, country } = req.body;
+    try {
+      const newAddress = await AddressModel.create({
+        UserId: userId,
+        fullName,
+        mobileNum,
+        zipCode,
+        streetAddress,
+        city,
+        state,
+        country
+      });
+      return res.status(201).json({ status: 'success', data: newAddress });
+    } catch (error) {
+      return res.status(500).json({ status: 'error', data: error.message });
+    }
+  }
+}

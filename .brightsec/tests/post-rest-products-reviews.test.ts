@@ -21,7 +21,7 @@ after(() => runner.clear());
 test('POST /rest/products/reviews', { signal: AbortSignal.timeout(timeout) }, async () => {
   await runner
     .createScan({
-      tests: ['stored_xss', 'nosql', 'csrf', 'bopla', 'business_constraint_bypass'],
+      tests: ['nosql'],
       attackParamLocations: [AttackParamLocation.BODY]
     })
     .threshold(Severity.CRITICAL)

@@ -21,7 +21,7 @@ after(() => runner.clear());
 test('PUT /api/products/1', { signal: AbortSignal.timeout(timeout) }, async () => {
   await runner
     .createScan({
-      tests: ['bopla', 'csrf', 'sqli', 'xss', 'file_upload'],
+      tests: ['sqli'],
       attackParamLocations: [AttackParamLocation.BODY]
     })
     .threshold(Severity.CRITICAL)

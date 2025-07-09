@@ -15,6 +15,12 @@ module.exports = function productReviews () {
   return (req: Request, res: Response, next: NextFunction) => {
     const id = req.body.id
     const user = security.authenticatedUsers.from(req)
+
+    // Validate and sanitize input
+    if (typeof id !== 'string') {
+      return res.status(400).json({ error: 'Invalid input' });
+    }
+
     db.reviewsCollection.findOne({ _id: id }).then((review: Review) => {
       if (!review) {
         res.status(404).json({ error: 'Not found' })

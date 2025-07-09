@@ -16,10 +16,20 @@ module.exports = function productReviews () {
   return (req: Request, res: Response) => {
     const user = security.authenticatedUsers.from(req)
     challengeUtils.solveIf(challenges.forgedReviewChallenge, () => { return user && user.data.email !== req.body.author })
+    
+    // Validate and sanitize input
+    const productId = req.params.id;
+    const message = req.body.message;
+    const author = req.body.author;
+
+    if (typeof productId !== 'string' || typeof message !== 'string' || typeof author !== 'string') {
+      return res.status(400).json({ error: 'Invalid input' });
+    }
+
     reviewsCollection.insert({
-      product: req.params.id,
-      message: req.body.message,
-      author: req.body.author,
+      product: productId,
+      message: message,
+      author: author,
       likesCount: 0,
       likedBy: []
     }).then(() => {

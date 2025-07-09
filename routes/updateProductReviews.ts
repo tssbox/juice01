@@ -14,10 +14,19 @@ const security = require('../lib/insecurity')
 module.exports = function productReviews () {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = security.authenticatedUsers.from(req) // vuln-code-snippet vuln-line forgedReviewChallenge
-    db.reviewsCollection.update( // vuln-code-snippet neutral-line forgedReviewChallenge
-      { _id: req.body.id }, // vuln-code-snippet vuln-line noSqlReviewsChallenge forgedReviewChallenge
-      { $set: { message: req.body.message } },
-      { multi: true } // vuln-code-snippet vuln-line noSqlReviewsChallenge
+    const reviewId = req.body.id;
+    const message = req.body.message;
+
+    // Validate and sanitize input
+    if (typeof reviewId !== 'string' || typeof message !== 'string') {
+      return res.status(400).json({ error: 'Invalid input' });
+    }
+
+    // Use parameterized query to prevent injection
+    db.reviewsCollection.update(
+      { _id: reviewId },
+      { $set: { message: message } },
+      { multi: true }
     ).then(
       (result: { modified: number, original: Array<{ author: any }> }) => {
         challengeUtils.solveIf(challenges.noSqlReviewsChallenge, () => { return result.modified > 1 }) // vuln-code-snippet hide-line

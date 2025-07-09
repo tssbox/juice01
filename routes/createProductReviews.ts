@@ -16,8 +16,12 @@ module.exports = function productReviews () {
   return (req: Request, res: Response) => {
     const user = security.authenticatedUsers.from(req)
     challengeUtils.solveIf(challenges.forgedReviewChallenge, () => { return user && user.data.email !== req.body.author })
+    const productId = req.params.id
+    if (typeof productId !== 'string' || !/^[a-fA-F0-9]{24}$/.test(productId)) {
+      return res.status(400).json({ error: 'Invalid product ID format.' })
+    }
     reviewsCollection.insert({
-      product: req.params.id,
+      product: productId,
       message: req.body.message,
       author: req.body.author,
       likesCount: 0,

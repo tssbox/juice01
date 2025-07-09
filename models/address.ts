@@ -67,7 +67,17 @@ const AddressModelInit = (sequelize: Sequelize) => {
     },
     {
       tableName: 'Addresses',
-      sequelize
+      sequelize,
+      defaultScope: {
+        attributes: { exclude: ['UserId'] }
+      },
+      scopes: {
+        byUser(userId: number) {
+          return {
+            where: { UserId: userId }
+          }
+        }
+      }
     }
   )
 }

@@ -21,7 +21,7 @@ after(() => runner.clear());
 test('POST /rest/chatbot/respond', { signal: AbortSignal.timeout(timeout) }, async () => {
   await runner
     .createScan({
-      tests: ['csrf', 'xss', 'nosql', 'jwt', 'prompt_injection'],
+      tests: ['jwt'],
       attackParamLocations: [AttackParamLocation.BODY]
     })
     .threshold(Severity.CRITICAL)

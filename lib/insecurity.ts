@@ -54,8 +54,24 @@ export const cutOffPoisonNullByte = (str: string) => {
 export const isAuthorized = () => expressJwt(({ secret: publicKey, algorithms: ['RS256'] }) as any)
 export const denyAll = () => expressJwt({ secret: '' + Math.random() } as any)
 export const authorize = (user = {}) => jwt.sign(user, privateKey, { expiresIn: '6h', algorithm: 'RS256' })
-export const verify = (token: string) => token ? (jws.verify as ((token: string, secret: string, algorithms: string[]) => boolean))(token, publicKey, ['RS256']) : false
-export const decode = (token: string) => { return jws.decode(token)?.payload }
+export const verify = (token: string) => {
+  try {
+    jwt.verify(token, publicKey, { algorithms: ['RS256'] })
+    return true
+  } catch (err) {
+    console.error('Token verification failed:', err)
+    return false
+  }
+}
+export const decode = (token: string) => {
+  try {
+    const decoded = jwt.verify(token, publicKey, { algorithms: ['RS256'] })
+    return decoded
+  } catch (err) {
+    console.error('Token decoding failed:', err)
+    return null
+  }
+}
 
 export const sanitizeHtml = (html: string) => sanitizeHtmlLib(html)
 export const sanitizeLegacy = (input = '') => input.replace(/<(?:\w+)\W+?[\w]/gi, '')

@@ -83,7 +83,7 @@ exports.errorHandlingChallenge = () => (err: unknown, req: Request, { statusCode
 
 exports.jwtChallenges = () => (req: Request, res: Response, next: NextFunction) => {
   if (challengeUtils.notSolved(challenges.jwtUnsignedChallenge)) {
-    jwtChallenge(challenges.jwtUnsignedChallenge, req, 'none', /jwtn3d@/)
+    jwtChallenge(challenges.jwtUnsignedChallenge, req, 'RS256', /jwtn3d@/)
   }
   if (utils.isChallengeEnabled(challenges.jwtForgedChallenge) && challengeUtils.notSolved(challenges.jwtForgedChallenge)) {
     jwtChallenge(challenges.jwtForgedChallenge, req, 'HS256', /rsa_lord@/)
@@ -112,7 +112,7 @@ function jwtChallenge (challenge: Challenge, req: Request, algorithm: string, em
   const token = utils.jwtFrom(req)
   if (token) {
     const decoded = jws.decode(token) ? jwt.decode(token) : null
-    jwt.verify(token, security.publicKey, (err: VerifyErrors | null, verified: JwtPayload) => {
+    jwt.verify(token, security.publicKey, { algorithms: ['RS256'] }, (err: VerifyErrors | null, verified: JwtPayload) => {
       if (err === null) {
         challengeUtils.solveIf(challenge, () => { return hasAlgorithm(token, algorithm) && hasEmail(decoded, email) })
       }

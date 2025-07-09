@@ -15,7 +15,8 @@ module.exports.getAddress = function getAddress () {
 
 module.exports.getAddressById = function getAddressById () {
   return async (req: Request, res: Response) => {
-    const address = await AddressModel.findOne({ where: { id: req.params.id, UserId: req.body.UserId } })
+    const userId = req.body.UserId
+    const address = await AddressModel.findOne({ where: { id: req.params.id, UserId: userId } })
     if (address != null) {
       res.status(200).json({ status: 'success', data: address })
     } else {
@@ -26,7 +27,8 @@ module.exports.getAddressById = function getAddressById () {
 
 module.exports.delAddressById = function delAddressById () {
   return async (req: Request, res: Response) => {
-    const address = await AddressModel.destroy({ where: { id: req.params.id, UserId: req.body.UserId } })
+    const userId = req.body.UserId
+    const address = await AddressModel.destroy({ where: { id: req.params.id, UserId: userId } })
     if (address) {
       res.status(200).json({ status: 'success', data: 'Address deleted successfully.' })
     } else {
@@ -39,6 +41,11 @@ module.exports.createAddress = function createAddress () {
   return async (req: Request, res: Response) => {
     try {
       const { UserId, fullName, mobileNum, zipCode, streetAddress, city, state, country } = req.body
+      // Ensure the UserId in the request matches the authenticated user's ID
+      if (req.user.id !== UserId) {
+        return res.status(403).json({ status: 'error', message: 'Unauthorized to create address for this user.' })
+      }
+      // Use parameterized query to prevent SQL injection
       const newAddress = await AddressModel.create({
         UserId,
         fullName,

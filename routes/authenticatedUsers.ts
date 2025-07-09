@@ -2,9 +2,10 @@
  * Copyright (c) 2014-2025 Bjoern Kimminich & the OWASP Juice Shop contributors.
  * SPDX-License-Identifier: MIT
  */
+
 import { type Request, type Response, type NextFunction } from 'express'
 import { UserModel } from '../models/user'
-import { decode } from 'jsonwebtoken'
+import { verify } from 'jsonwebtoken'
 import * as security from '../lib/insecurity'
 
 async function retrieveUserList (req: Request, res: Response, next: NextFunction) {
@@ -17,8 +18,13 @@ async function retrieveUserList (req: Request, res: Response, next: NextFunction
         const userToken = security.authenticatedUsers.tokenOf(user)
         let lastLoginTime: number | null = null
         if (userToken) {
-          const parsedToken = decode(userToken, { json: true })
-          lastLoginTime = parsedToken ? Math.floor(new Date(parsedToken?.iat ?? 0 * 1000).getTime()) : null
+          try {
+            // Verify the token with the expected algorithm and secret
+            const parsedToken = verify(userToken, security.publicKey, { algorithms: ['RS256'] })
+            lastLoginTime = parsedToken ? Math.floor(new Date(parsedToken.iat * 1000).getTime()) : null
+          } catch (err) {
+            console.error('Token verification failed:', err)
+          }
         }
 
         return {

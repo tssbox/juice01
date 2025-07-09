@@ -8,14 +8,14 @@ import { AddressModel } from '../models/address'
 
 module.exports.getAddress = function getAddress () {
   return async (req: Request, res: Response) => {
-    const addresses = await AddressModel.findAll({ where: { UserId: req.body.UserId } })
+    const addresses = await AddressModel.findAll({ where: { UserId: req.user.id } })
     res.status(200).json({ status: 'success', data: addresses })
   }
 }
 
 module.exports.getAddressById = function getAddressById () {
   return async (req: Request, res: Response) => {
-    const userId = req.body.UserId
+    const userId = req.user.id
     const address = await AddressModel.findOne({ where: { id: req.params.id, UserId: userId } })
     if (address != null) {
       res.status(200).json({ status: 'success', data: address })
@@ -27,7 +27,7 @@ module.exports.getAddressById = function getAddressById () {
 
 module.exports.delAddressById = function delAddressById () {
   return async (req: Request, res: Response) => {
-    const userId = req.body.UserId
+    const userId = req.user.id
     const address = await AddressModel.destroy({ where: { id: req.params.id, UserId: userId } })
     if (address) {
       res.status(200).json({ status: 'success', data: 'Address deleted successfully.' })
@@ -40,12 +40,8 @@ module.exports.delAddressById = function delAddressById () {
 module.exports.createAddress = function createAddress () {
   return async (req: Request, res: Response) => {
     try {
-      const { UserId, fullName, mobileNum, zipCode, streetAddress, city, state, country } = req.body
-      // Ensure the UserId in the request matches the authenticated user's ID
-      if (req.user.id !== UserId) {
-        return res.status(403).json({ status: 'error', message: 'Unauthorized to create address for this user.' })
-      }
-      // Use parameterized query to prevent SQL injection
+      const { fullName, mobileNum, zipCode, streetAddress, city, state, country } = req.body
+      const UserId = req.user.id
       const newAddress = await AddressModel.create({
         UserId,
         fullName,

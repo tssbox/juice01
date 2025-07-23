@@ -59,6 +59,12 @@ router.post('/', async (req: Request<Record<string, unknown>, Record<string, unk
   }
 
   try {
+    // Ensure the UserId in the request matches the logged-in user's ID
+    if (req.body.email !== loggedInUser.data.email) {
+      res.status(403).send('Unauthorized request')
+      return
+    }
+
     await PrivacyRequestModel.create({
       UserId: loggedInUser.data.id,
       deletionRequested: true

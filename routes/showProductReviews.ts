@@ -33,6 +33,10 @@ module.exports = function productReviews () {
     // Measure how long the query takes, to check if there was a nosql dos attack
     const t0 = new Date().getTime()
 
+    if (isNaN(id)) {
+      return res.status(400).json({ error: 'Invalid product ID format' });
+    }
+
     db.reviewsCollection.find({ $where: 'this.product == ' + id }).then((reviews: Review[]) => {
       const t1 = new Date().getTime()
       challengeUtils.solveIf(challenges.noSqlCommandChallenge, () => { return (t1 - t0) > 2000 })

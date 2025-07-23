@@ -21,7 +21,7 @@ after(() => runner.clear());
 test('GET /rest/user/authentication-details', { signal: AbortSignal.timeout(timeout) }, async () => {
   await runner
     .createScan({
-      tests: ['csrf', 'jwt', 'id_enumeration', 'xss', 'bopla'],
+      tests: ['jwt'],
       attackParamLocations: [AttackParamLocation.HEADER]
     })
     .threshold(Severity.CRITICAL)

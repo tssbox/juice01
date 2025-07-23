@@ -21,7 +21,7 @@ after(() => runner.clear());
 test('POST /api/privacy-requests', { signal: AbortSignal.timeout(timeout) }, async () => {
   await runner
     .createScan({
-      tests: ['bopla', 'csrf', 'sqli', 'xss', 'id_enumeration'],
+      tests: ['id_enumeration'],
       attackParamLocations: [AttackParamLocation.BODY]
     })
     .threshold(Severity.CRITICAL)

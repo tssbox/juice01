@@ -27,6 +27,10 @@ exports.blockRecycleItems = () => (req: Request, res: Response) => {
 
 exports.createRecycleItem = () => (req: Request, res: Response) => {
   const { UserId, AddressId, quantity, isPickup, date } = req.body;
+  // Ensure that the input is validated and sanitized before using it
+  if (typeof UserId !== 'number' || typeof AddressId !== 'number' || typeof quantity !== 'number' || typeof isPickup !== 'boolean' || isNaN(new Date(date).getTime())) {
+    return res.status(400).send('Invalid input data. Please check your input and try again.');
+  }
   RecycleModel.create({
     UserId,
     AddressId,

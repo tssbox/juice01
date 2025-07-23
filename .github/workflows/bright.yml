@@ -1,0 +1,64 @@
+name: Bright
+
+on:
+  pull_request:
+    branches: ['*']
+
+permissions:
+  checks: write
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      BRIGHT_HOSTNAME: ${{ vars.BRIGHT_HOSTNAME }}
+      BRIGHT_PROJECT_ID: ${{ vars.BRIGHT_PROJECT_ID }}
+      BRIGHT_AUTH_ID: ${{ vars.BRIGHT_AUTH_ID }}
+      BRIGHT_TOKEN: ${{ secrets.BRIGHT_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      BRIGHT_TARGET_URL: http://127.0.0.1:3000
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Install application dependencies
+        run: |
+          npm install
+
+      - name: Start application
+        run: |
+          # Launch a subshell that restarts on any crash
+          (
+            while true; do
+              npm start
+              echo "[app] crashed with exit code $? – restarting…" >&2
+              sleep 1
+            done
+          ) &
+
+          # Wait for the app to become reachable on port 3000
+          until nc -zv 127.0.0.1 3000; do
+            echo "Waiting for app to be available…"
+            sleep 1
+          done
+
+      - name: Set up Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: Install SecTesterJS dependencies
+        run: |
+          npm i --save=false --prefix .brightsec @sectester/core @sectester/repeater @sectester/scan @sectester/runner @sectester/reporter
+
+      - name: Run security tests
+        run: |
+          node --experimental-transform-types --experimental-strip-types --experimental-detect-module \
+          --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --disable-warning=ExperimentalWarning \
+          --test-force-exit --test-concurrency=1 --test .brightsec/tests/*.test.ts

@@ -1,8 +1,11 @@
 name: "Release Pipeline"
 on:
-  push:
-    tags:
-      - v*
+  workflow_dispatch:
+# on:
+#   push:
+#     tags:
+#       - v*
+
 env:
   CYCLONEDX_NPM_VERSION: '^1.12.0'
 jobs:

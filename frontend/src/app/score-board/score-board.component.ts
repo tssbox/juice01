@@ -8,7 +8,6 @@ import { fromQueryParams, toQueryParams } from './filter-settings/query-params-c
 import { DEFAULT_FILTER_SETTING, type FilterSetting } from './filter-settings/FilterSetting'
 import { type Config, ConfigurationService } from '../Services/configuration.service'
 import { CodeSnippetComponent } from '../code-snippet/code-snippet.component'
-import { CodeSnippetService } from '../Services/code-snippet.service'
 import { ChallengeService } from '../Services/challenge.service'
 import { filterChallenges } from './helpers/challenge-filtering'
 import { SocketIoService } from '../Services/socket-io.service'
@@ -42,7 +41,6 @@ interface CodeChallengeSolvedWebsocket {
   selector: 'app-score-board',
   templateUrl: './score-board.component.html',
   styleUrls: ['./score-board.component.scss'],
-  standalone: true,
   imports: [HackingChallengeProgressScoreCardComponent, CodingChallengeProgressScoreCardComponent, DifficultyOverviewScoreCardComponent, NgIf, FilterSettingsComponent, MatProgressSpinner, ChallengesUnavailableWarningComponent, TutorialModeWarningComponent, NgFor, ChallengeCardComponent, NgClass, TranslateModule]
 })
 export class ScoreBoardComponent implements OnInit, OnDestroy {
@@ -57,7 +55,6 @@ export class ScoreBoardComponent implements OnInit, OnDestroy {
 
   constructor (
     private readonly challengeService: ChallengeService,
-    private readonly codeSnippetService: CodeSnippetService,
     private readonly configurationService: ConfigurationService,
     private readonly sanitizer: DomSanitizer,
     private readonly ngZone: NgZone,
@@ -70,9 +67,8 @@ export class ScoreBoardComponent implements OnInit, OnDestroy {
   ngOnInit (): void {
     const dataLoaderSubscription = combineLatest([
       this.challengeService.find({ sort: 'name' }),
-      this.codeSnippetService.challenges(),
       this.configurationService.getApplicationConfiguration()
-    ]).subscribe(([challenges, challengeKeysWithCodeChallenges, applicationConfiguration]) => {
+    ]).subscribe(([challenges, applicationConfiguration]) => {
       this.applicationConfiguration = applicationConfiguration
 
       const transformedChallenges = challenges.map((challenge) => {
@@ -80,10 +76,10 @@ export class ScoreBoardComponent implements OnInit, OnDestroy {
           ...challenge,
           tagList: challenge.tags ? challenge.tags.split(',').map((tag) => tag.trim()) : [],
           originalDescription: challenge.description as string,
-          description: this.sanitizer.bypassSecurityTrustHtml(challenge.description as string),
-          hasCodingChallenge: challengeKeysWithCodeChallenges.includes(challenge.key)
+          description: this.sanitizer.bypassSecurityTrustHtml(challenge.description as string)
         }
       })
+
       this.allChallenges = transformedChallenges
       this.filterAndUpdateChallenges()
       this.isInitialized = true

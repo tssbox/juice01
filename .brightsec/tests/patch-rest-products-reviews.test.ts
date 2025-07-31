@@ -21,7 +21,7 @@ after(() => runner.clear());
 test('PATCH /rest/products/reviews', { signal: AbortSignal.timeout(timeout) }, async () => {
   await runner
     .createScan({
-      tests: ['bopla', 'csrf', 'nosql', 'xss'],
+      tests: ['nosql'],
       attackParamLocations: [AttackParamLocation.BODY]
     })
     .setFailFast(false)

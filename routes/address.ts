@@ -53,6 +53,9 @@ export function createAddress () {
     if (!userId) {
       return res.status(401).json({ status: 'error', data: 'Unauthorized access.' })
     }
+    if (userId !== req.authenticatedUser.id) { // Ensure the user is authorized to create an address
+      return res.status(403).json({ status: 'error', data: 'Forbidden: You cannot create an address for another user.' })
+    }
     const { fullName, mobileNum, zipCode, streetAddress, city, state, country } = req.body
     try {
       const newAddress = await AddressModel.create({

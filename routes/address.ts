@@ -12,6 +12,9 @@ export function getAddress () {
     if (!userId) {
       return res.status(401).json({ status: 'error', data: 'Unauthorized access.' })
     }
+    if (userId !== req.authenticatedUser.id) { // Ensure the user is authorized to access addresses
+      return res.status(403).json({ status: 'error', data: 'Forbidden: You cannot access addresses for another user.' })
+    }
     const addresses = await AddressModel.findAll({ where: { UserId: userId } })
     res.status(200).json({ status: 'success', data: addresses })
   }
@@ -22,6 +25,9 @@ export function getAddressById () {
     const userId = req.body.UserId
     if (!userId) {
       return res.status(401).json({ status: 'error', data: 'Unauthorized access.' })
+    }
+    if (userId !== req.authenticatedUser.id) { // Ensure the user is authorized to access this address
+      return res.status(403).json({ status: 'error', data: 'Forbidden: You cannot access this address.' })
     }
     const address = await AddressModel.findOne({ where: { id: req.params.id, UserId: userId } })
     if (address != null) {
@@ -37,6 +43,9 @@ export function delAddressById () {
     const userId = req.body.UserId
     if (!userId) {
       return res.status(401).json({ status: 'error', data: 'Unauthorized access.' })
+    }
+    if (userId !== req.authenticatedUser.id) { // Ensure the user is authorized to delete this address
+      return res.status(403).json({ status: 'error', data: 'Forbidden: You cannot delete this address.' })
     }
     const address = await AddressModel.destroy({ where: { id: req.params.id, UserId: userId } })
     if (address) {

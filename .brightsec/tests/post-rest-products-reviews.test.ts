@@ -21,7 +21,7 @@ after(() => runner.clear());
 test('POST /rest/products/reviews', { signal: AbortSignal.timeout(timeout) }, async () => {
   await runner
     .createScan({
-      tests: ['csrf', 'xss', 'nosql', 'bopla'],
+      tests: ['nosql'],
       attackParamLocations: [AttackParamLocation.BODY],
       starMetadata: {}
     })

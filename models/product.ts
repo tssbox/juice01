@@ -39,7 +39,12 @@ const ProductModelInit = (sequelize: Sequelize) => {
         primaryKey: true,
         autoIncrement: true
       },
-      name: DataTypes.STRING,
+      name: {
+        type: DataTypes.STRING,
+        set (name: string) {
+          this.setDataValue('name', security.sanitizeSecure(name))
+        }
+      },
       description: {
         type: DataTypes.STRING,
         set (description: string) {

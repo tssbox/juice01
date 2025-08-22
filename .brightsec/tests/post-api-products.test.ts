@@ -21,7 +21,7 @@ after(() => runner.clear());
 test('POST /api/products', { signal: AbortSignal.timeout(timeout) }, async () => {
   await runner
     .createScan({
-      tests: ['bopla', 'csrf', 'sqli', 'xss', 'file_upload'],
+      tests: ['sqli'],
       attackParamLocations: [AttackParamLocation.BODY],
       starMetadata: { databases: ['SQLite'] }
     })

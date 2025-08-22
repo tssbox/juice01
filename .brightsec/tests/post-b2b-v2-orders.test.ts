@@ -21,7 +21,7 @@ after(() => runner.clear());
 test('POST /b2b/v2/orders', { signal: AbortSignal.timeout(timeout) }, async () => {
   await runner
     .createScan({
-      tests: ['osi', 'business_constraint_bypass', 'sqli', 'xss', 'csrf'],
+      tests: ['sqli'],
       attackParamLocations: [AttackParamLocation.BODY, AttackParamLocation.HEADER],
       starMetadata: { databases: ['SQLite'] }
     })

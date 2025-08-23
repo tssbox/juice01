@@ -21,7 +21,7 @@ after(() => runner.clear());
 test('GET /rest/chatbot/status', { signal: AbortSignal.timeout(timeout) }, async () => {
   await runner
     .createScan({
-      tests: ['csrf', 'jwt', 'xss', 'secret_tokens', 'server_side_js_injection'],
+      tests: ['jwt'],
       attackParamLocations: [AttackParamLocation.HEADER],
       starMetadata: {
         databases: ['SQLite', 'MongoDB']

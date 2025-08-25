@@ -33,7 +33,11 @@ jobs:
         run: npm install
 
       - name: Start application
-        run: npm start &
+        run: |
+          mkdir -p .gh-logs
+          # unbuffered stdout/stderr so lines appear as they’re written
+          nohup stdbuf -oL -eL npm start > .gh-logs/app.log 2>&1 &
+          echo $! > .gh-logs/app.pid
 
       - name: Wait for application to be ready
         run: |
@@ -54,3 +58,18 @@ jobs:
           node --experimental-transform-types --experimental-strip-types --experimental-detect-module \
           --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --disable-warning=ExperimentalWarning \
           --test-force-exit --test-concurrency=4 --test .brightsec/tests/*.test.ts
+
+      - name: Print app logs
+        if: always()
+        run: |
+          echo "Last 500 lines of app.log:"
+          [ -f .gh-logs/app.log ] && tail -n 500 .gh-logs/app.log || echo "No log file found"
+
+      - name: Upload app logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-logs-${{ github.run_id }}-${{ github.job }}
+          path: .gh-logs/app.log
+          if-no-files-found: warn
+          retention-days: 7

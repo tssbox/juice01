@@ -20,8 +20,12 @@ export function createProductReviews () {
     )
 
     try {
+      const productId = req.params.id
+      if (typeof productId !== 'string' || !/^[a-f\d]{24}$/i.test(productId)) {
+        return res.status(400).json({ error: 'Invalid product ID format' })
+      }
       await reviewsCollection.insert({
-        product: req.params.id,
+        product: productId,
         message: req.body.message,
         author: req.body.author,
         likesCount: 0,

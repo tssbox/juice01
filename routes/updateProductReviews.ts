@@ -14,8 +14,12 @@ import * as db from '../data/mongodb'
 export function updateProductReviews () {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = security.authenticatedUsers.from(req) // vuln-code-snippet vuln-line forgedReviewChallenge
+    const reviewId = req.body.id
+    if (typeof reviewId !== 'string' || !/^[a-f\d]{24}$/i.test(reviewId)) {
+      return res.status(400).json({ error: 'Invalid review ID format' })
+    }
     db.reviewsCollection.update( // vuln-code-snippet neutral-line forgedReviewChallenge
-      { _id: req.body.id }, // vuln-code-snippet vuln-line noSqlReviewsChallenge forgedReviewChallenge
+      { _id: reviewId }, // vuln-code-snippet vuln-line noSqlReviewsChallenge forgedReviewChallenge
       { $set: { message: req.body.message } },
       { multi: true } // vuln-code-snippet vuln-line noSqlReviewsChallenge
     ).then(

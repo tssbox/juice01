@@ -1,4 +1,5 @@
 name: Bright
+
 on:
   pull_request:
     branches:

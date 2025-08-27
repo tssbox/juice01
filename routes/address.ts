@@ -43,3 +43,13 @@ export function delAddressById () {
     }
   }
 }
+
+export function createAddress () {
+  return async (req: Request, res: Response) => {
+    if (!req.body.UserId) {
+      return res.status(401).json({ status: 'error', data: 'Unauthorized access.' })
+    }
+    const newAddress = await AddressModel.create({ ...req.body, UserId: req.body.UserId })
+    res.status(201).json({ status: 'success', data: newAddress })
+  }
+}

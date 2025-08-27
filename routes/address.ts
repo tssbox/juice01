@@ -49,6 +49,9 @@ export function createAddress () {
     if (!req.body.UserId) {
       return res.status(401).json({ status: 'error', data: 'Unauthorized access.' })
     }
+    if (req.body.UserId !== req.user.id) { // Ensure the UserId in the request matches the authenticated user's ID
+      return res.status(403).json({ status: 'error', data: 'Forbidden: User ID mismatch.' })
+    }
     const newAddress = await AddressModel.create({ ...req.body, UserId: req.body.UserId })
     res.status(201).json({ status: 'success', data: newAddress })
   }

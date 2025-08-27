@@ -24,10 +24,14 @@ export function createProductReviews () {
       if (typeof productId !== 'string' || !/^[a-f\d]{24}$/i.test(productId)) {
         return res.status(400).json({ error: 'Invalid product ID format' })
       }
+      // Validate and sanitize input to prevent NoSQL injection
+      const message = utils.sanitizeInput(req.body.message)
+      const author = utils.sanitizeInput(req.body.author)
+
       await reviewsCollection.insert({
         product: productId,
-        message: req.body.message,
-        author: req.body.author,
+        message: message,
+        author: author,
         likesCount: 0,
         likedBy: []
       })

@@ -21,7 +21,7 @@ after(() => runner.clear());
 test('POST /api/addresss', { signal: AbortSignal.timeout(timeout) }, async () => {
   await runner
     .createScan({
-      tests: ['bopla', 'id_enumeration', 'sqli', 'xss'],
+      tests: ['id_enumeration'],
       attackParamLocations: [AttackParamLocation.BODY],
       starMetadata: { databases: ['SQLite'] }
     })

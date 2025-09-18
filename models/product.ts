@@ -39,7 +39,12 @@ const ProductModelInit = (sequelize: Sequelize) => {
         primaryKey: true,
         autoIncrement: true
       },
-      name: DataTypes.STRING,
+      name: {
+        type: DataTypes.STRING,
+        set (name: string) {
+          this.setDataValue('name', security.sanitizeSecure(name))
+        }
+      },
       description: {
         type: DataTypes.STRING,
         set (description: string) {
@@ -47,7 +52,7 @@ const ProductModelInit = (sequelize: Sequelize) => {
             challengeUtils.solveIf(challenges.restfulXssChallenge, () => {
               return utils.contains(
                 description,
-                '<iframe src="javascript:alert(`xss`)">'
+                '<iframe src="javascript:alert(`xss`)">' // vuln-code-snippet hide-line
               )
             })
           } else {

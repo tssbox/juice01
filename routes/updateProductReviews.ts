@@ -9,15 +9,24 @@ import * as challengeUtils from '../lib/challengeUtils'
 import { challenges } from '../data/datacache'
 import * as security from '../lib/insecurity'
 import * as db from '../data/mongodb'
+import { ObjectId } from 'mongodb';
 
 // vuln-code-snippet start noSqlReviewsChallenge forgedReviewChallenge
 export function updateProductReviews () {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = security.authenticatedUsers.from(req) // vuln-code-snippet vuln-line forgedReviewChallenge
+    const reviewId = req.body.id;
+    if (!ObjectId.isValid(reviewId)) {
+      return res.status(400).json({ error: 'Invalid review ID format' });
+    }
+    const message = req.body.message;
+    if (typeof message !== 'string' || message.trim() === '') {
+      return res.status(400).json({ error: 'Invalid message format' });
+    }
     db.reviewsCollection.update( // vuln-code-snippet neutral-line forgedReviewChallenge
-      { _id: req.body.id }, // vuln-code-snippet vuln-line noSqlReviewsChallenge forgedReviewChallenge
-      { $set: { message: req.body.message } },
-      { multi: true } // vuln-code-snippet vuln-line noSqlReviewsChallenge
+      { _id: new ObjectId(reviewId) }, // vuln-code-snippet vuln-line noSqlReviewsChallenge forgedReviewChallenge
+      { $set: { message: message } },
+      { multi: false } // Changed from true to false to prevent multiple updates
     ).then(
       (result: { modified: number, original: Array<{ author: any }> }) => {
         challengeUtils.solveIf(challenges.noSqlReviewsChallenge, () => { return result.modified > 1 }) // vuln-code-snippet hide-line

@@ -9,14 +9,19 @@ import { RecycleModel } from '../models/recycle'
 import * as utils from '../lib/utils'
 
 export const getRecycleItem = () => (req: Request, res: Response) => {
+  const userId = req.user.id; // Assuming req.user is populated with authenticated user's info
   RecycleModel.findAll({
     where: {
-      id: JSON.parse(req.params.id)
+      id: req.params.id, // Use parameterized query
+      UserId: userId // Ensure the recycle item belongs to the authenticated user
     }
   }).then((Recycle) => {
+    if (Recycle.length === 0) {
+      return res.status(404).send('Recycle item not found or access denied.');
+    }
     return res.send(utils.queryResultToJson(Recycle))
   }).catch((_: unknown) => {
-    return res.send('Error fetching recycled items. Please try again')
+    return res.status(500).send('Error fetching recycled items. Please try again')
   })
 }
 

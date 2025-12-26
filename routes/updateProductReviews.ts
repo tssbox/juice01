@@ -9,13 +9,18 @@ import * as challengeUtils from '../lib/challengeUtils'
 import { challenges } from '../data/datacache'
 import * as security from '../lib/insecurity'
 import * as db from '../data/mongodb'
+import { ObjectId } from 'mongodb';
 
 // vuln-code-snippet start noSqlReviewsChallenge forgedReviewChallenge
 export function updateProductReviews () {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = security.authenticatedUsers.from(req) // vuln-code-snippet vuln-line forgedReviewChallenge
+    const reviewId = req.body.id;
+    if (!ObjectId.isValid(reviewId)) {
+      return res.status(400).json({ error: 'Invalid review ID format.' });
+    }
     db.reviewsCollection.update( // vuln-code-snippet neutral-line forgedReviewChallenge
-      { _id: req.body.id }, // vuln-code-snippet vuln-line noSqlReviewsChallenge forgedReviewChallenge
+      { _id: new ObjectId(reviewId) }, // vuln-code-snippet vuln-line noSqlReviewsChallenge forgedReviewChallenge
       { $set: { message: req.body.message } },
       { multi: true } // vuln-code-snippet vuln-line noSqlReviewsChallenge
     ).then(

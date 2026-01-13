@@ -39,7 +39,12 @@ const ProductModelInit = (sequelize: Sequelize) => {
         primaryKey: true,
         autoIncrement: true
       },
-      name: DataTypes.STRING,
+      name: {
+        type: DataTypes.STRING,
+        set (name: string) {
+          this.setDataValue('name', security.sanitizeSecure(name))
+        }
+      },
       description: {
         type: DataTypes.STRING,
         set (description: string) {
@@ -47,13 +52,11 @@ const ProductModelInit = (sequelize: Sequelize) => {
             challengeUtils.solveIf(challenges.restfulXssChallenge, () => {
               return utils.contains(
                 description,
-                '<iframe src="javascript:alert(`xss`)">'
+                '<iframe src="javascript:alert(`xss`)">' // This is for a specific challenge and should not be removed
               )
             })
-          } else {
-            description = security.sanitizeSecure(description)
           }
-          this.setDataValue('description', description)
+          this.setDataValue('description', security.sanitizeSecure(description))
         }
       },
       price: DataTypes.DECIMAL,
